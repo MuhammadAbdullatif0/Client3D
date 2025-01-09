@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { Device } from '../../shared/Device';
 import { HomeService } from '../../core/home.service';
+import { DeviceModalComponent } from './device-modal/device-modal.component';
 
 @Component({
   selector: 'app-home3-d',
   standalone: true,
-  imports: [],
+  imports: [DeviceModalComponent],
   templateUrl: './home3-d.component.html',
   styleUrl: './home3-d.component.css'
 })
 export class Home3DComponent implements OnInit {
   devices: Device[] = [];
-  
+  selectedDevice: Device | null = null;
+
   private homeImage = new Image();
   private camImage = new Image();
   private doorImage = new Image();
@@ -37,6 +39,8 @@ export class Home3DComponent implements OnInit {
       this.resizeCanvas(canvas, context);
       this.loadDevices(context);
     });
+
+    canvas.addEventListener('click', (event) => this.onCanvasClick(event, canvas));
   }
 
   resizeCanvas(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): void {
@@ -54,11 +58,31 @@ export class Home3DComponent implements OnInit {
         const y = this.convertLatitudeToY(device.latitude, context.canvas.height);
 
         const img = device.type.toLowerCase() === 'camera' ? this.camImage : this.doorImage;
-
         context.drawImage(img, x - 10, y - 10, 20, 20);
-      
       });
     });
+  }
+
+  onCanvasClick(event: MouseEvent, canvas: HTMLCanvasElement): void {
+    const rect = canvas.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    this.devices.forEach((device) => {
+      const x = this.convertLongitudeToX(device.longitude, canvas.width);
+      const y = this.convertLatitudeToY(device.latitude, canvas.height);
+
+      if (Math.abs(clickX - x) < 10 && Math.abs(clickY - y) < 10) {
+        if (this.selectedDevice === device) {
+          return;
+        }
+        this.selectedDevice = device;
+      }
+    });
+  }
+
+  closeModal(): void {
+    this.selectedDevice = null;
   }
 
   convertLongitudeToX(longitude: number, canvasWidth: number): number {

@@ -1,0 +1,11 @@
+@if(device){
+<div class="modal-overlay">
+    <div class="modal-content">
+      <h2>Device Details</h2>
+      <p><strong>Name:</strong> {{ device.name }}</p>
+      <p><strong>Type:</strong> {{ device.type }}</p>
+      <p><strong>Coordinates:</strong> {{ device.latitude }}, {{ device.longitude }}</p>
+      <button (click)="closeModal()">Close</button>
+    </div>
+  </div>
+}
